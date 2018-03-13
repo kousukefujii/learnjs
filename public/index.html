@@ -29,13 +29,31 @@
         </div>
       </div>
 
+      <!-- 出題ビュー -->
       <div class="templates">
         <div class="problem-view">
           <h3 class="title"></h3>
           <p class="description" data-name="description"></p>
           <pre><code class="code" data-name="code"></code></pre>
+          <form action="">
+            <textarea class="u-fill-width answer" name="" cols="30" rows="10"></textarea>
+
+            <div>
+              <button class="button-primary check-btn">Check Answer</button>
+              <p class="result"></p>
+            </div>
+          </form>
         </div>
       </div>
+
+      <!-- 正解ビュー -->
+      <div class="templates">
+        <div class="correct-flash">
+          <span>Correct!</span>
+          <a href="">Next</a>
+        </div>
+      </div>
+
     </div>
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>

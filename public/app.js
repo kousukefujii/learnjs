@@ -10,7 +10,7 @@ learnjs.problems = [
   },
   {
     description: 'Simple Math',
-    code: 'function problemView() { return 42 === 6 * __ }'
+    code: 'function problem() { return 42 === 6 * __ }'
   }
 ];
 
@@ -21,13 +21,42 @@ learnjs.appOnReady = () => {
   learnjs.showView(window.location.hash);
 };
 
+learnjs.getTemplate = (name) => {
+  const $template = $(`.templates .${name}`);
+  return $template.clone();
+};
+
 learnjs.problemView = (num) => {
   const title = `Problem #${num}`;
-  const $view = $('.templates .problem-view').clone();
+  const $view = learnjs.getTemplate('problem-view');
   const problem = learnjs.problems[num / 1 - 1];
+  const $result = $('.result', $view);
+  const $answer = $('.answer', $view);
+
+  const isCorrect = () => {
+    const answer = $answer.val();
+    const test = problem.code.replace('__', answer) + '; problem();';
+    return eval(test);
+  };
+
+  const flashResult = function(e) {
+    e.preventDefault();
+    let $resultContent;
+    if (isCorrect()) {
+      $resultContent = learnjs.getTemplate('correct-flash');
+      $('a', $resultContent).attr('href' , `#problem-${num / 1 + 1}`);
+    } else {
+      $resultContent = $('<span>').text('Incollect!');
+    }
+
+    $result.html($resultContent);
+  };
 
   $view.find('.title').text(title);
   learnjs.applyObject(problem, $view);
+
+  // クリックイベントをアサイン
+  $('.check-btn', $view).click(flashResult);
 
   return $view;
 };

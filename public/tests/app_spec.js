@@ -36,11 +36,31 @@ describe('LearnJS', () => {
   });
 
   describe('problem view', () => {
+    let $view;
+    beforeEach(() => {
+      $view = learnjs.problemView('1');
+    });
+
+
     it('has a title that includes the problem number',
       () => {
-        const $view = learnjs.problemView('1');
         expect($view.find('.title').text().trim()).toEqual('Problem #1');
       }
     );
+
+    describe('answer section', () => {
+      it('can check a correct answer by hitting a button', () => {
+        $('.answer', $view).val('true');
+        $('.check-btn', $view).click();
+        expect($('.result', $view).text()).toEqual('Correct!');
+      });
+
+      it('rejects a incorrect answer', () => {
+        $('.answer', $view).val('false');
+        $('.check-btn', $view).click();
+        expect($('.result', $view).text()).toEqual('Incorrect!');
+      });
+    });
   });
+
 });

@@ -39,7 +39,7 @@ describe('LearnJS', () => {
     it('has a title that includes the problem number',
       () => {
         const $view = learnjs.problemView('1');
-        expect($view.text()).toEqual('Problem #1 coming soon');
+        expect($view.find('.title').text().trim()).toEqual('Problem #1');
       }
     );
   });

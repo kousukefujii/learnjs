@@ -88,3 +88,8 @@ learnjs.showView = (hash) => {
 $(() => {
   learnjs.appOnReady();
 });
+
+function googleSignIn()
+{
+  console.log(arguments);
+}

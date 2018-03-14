@@ -1,11 +1,11 @@
 describe('LearnJS', () => {
   it('can show a problem view', () => {
-    learnjs.showView('#problem-1');
+    learnjs.showView('#problem-42');
     expect($('.view-container .problem-view').length).toEqual(1);
   });
 
   // hashがからのときのアサーション
-  it('shows the landing page view whehn there is no hash.', () => {
+  it('shows the landing page view when there is no hash.', () => {
     learnjs.showView('');
     expect($('.view-container .landing-view').length).toEqual(1);
   });
@@ -41,7 +41,6 @@ describe('LearnJS', () => {
       $view = learnjs.problemView('1');
     });
 
-
     it('has a title that includes the problem number',
       () => {
         expect($view.find('.title').text().trim()).toEqual('Problem #1');
@@ -52,13 +51,14 @@ describe('LearnJS', () => {
       it('can check a correct answer by hitting a button', () => {
         $('.answer', $view).val('true');
         $('.check-btn', $view).click();
-        expect($('.result', $view).text()).toEqual('Correct!');
+        expect($('.result', $view).text().trim()).toMatch(/^Correct\!/);
+        expect($('.next-button', $view).length).toEqual(1);
       });
 
       it('rejects a incorrect answer', () => {
         $('.answer', $view).val('false');
         $('.check-btn', $view).click();
-        expect($('.result', $view).text()).toEqual('Incorrect!');
+        expect($('.result', $view).text().trim()).toEqual('Incorrect!');
       });
     });
   });

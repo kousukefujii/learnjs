@@ -26,6 +26,11 @@ learnjs.getTemplate = (name) => {
   return $template.clone();
 };
 
+learnjs.landingView = () => {
+  const $template = learnjs.getTemplate('landing-view');
+  return $template;
+};
+
 learnjs.problemView = (num) => {
   const title = `Problem #${num}`;
   const $view = learnjs.getTemplate('problem-view');
@@ -46,7 +51,7 @@ learnjs.problemView = (num) => {
       $resultContent = learnjs.getTemplate('correct-flash');
       $('a', $resultContent).attr('href' , `#problem-${num / 1 + 1}`);
     } else {
-      $resultContent = $('<span>').text('Incollect!');
+      $resultContent = $('<span>').text('Incorrect!');
     }
 
     $result.html($resultContent);
@@ -68,16 +73,15 @@ learnjs.applyObject = (problem, $template) => {
 };
 
 learnjs.showView = (hash) => {
-  if (!hash) {
-    return;
-  }
-
   const routes = {
     '#problem': learnjs.problemView,
+    '': learnjs.landingView,
   };
 
   const hashParams = hash.split('-');
+  const viewFunction = routes[hashParams[0]];
   const $view = routes[hashParams[0]](hashParams[1]);
+
   $('.view-container').empty().append($view);
 };
 

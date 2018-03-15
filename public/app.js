@@ -19,7 +19,7 @@ learnjs.problems = [
 ];
 
 learnjs.appOnReady = () => {
-  window.onhashchange = (e) => {
+  window.onhashchange = () => {
     learnjs.showView(window.location.hash);
   };
   learnjs.showView(window.location.hash);
@@ -55,6 +55,7 @@ learnjs.problemView = (num) => {
     if (isCorrect()) {
       $resultContent = learnjs.getTemplate('correct-flash');
       $('a', $resultContent).attr('href' , `#problem-${num / 1 + 1}`);
+      learnjs.saveAnswer(num, $answer.val());
     } else {
       $resultContent = $('<span>').text('Incorrect!');
     }
@@ -64,6 +65,13 @@ learnjs.problemView = (num) => {
 
   $view.find('.title').text(title);
   learnjs.applyObject(problem, $view);
+
+  // すでに答えていたとき
+  learnjs.fetchAnswer(num).then((data) => {
+    if (data.Item) {
+      $answer.val(data.Item.answer);
+    }
+  });
 
   // クリックイベントをアサイン
   $('.check-btn', $view).click(flashResult);
@@ -100,7 +108,6 @@ learnjs.showView = (hash) => {
   };
 
   const hashParams = hash.split('-');
-  const viewFunction = routes[hashParams[0]];
   const $view = routes[hashParams[0]](hashParams[1]);
 
   $('.view-container').empty().append($view);
@@ -116,15 +123,74 @@ learnjs.awsRefresh = function() {
     }
   });
   return deferred.promise();
-}
+};
+
+learnjs.sendDbRequest = (req, retry) => {
+  const promise = new $.Deferred;
+  req.on('error', (error) => {
+    if (error.code == 'CredentialsError') {
+      learnjs.identity.then((identity) => {
+        return identity.refresh().then(() => {
+          return retry();
+        });
+      }, () => {
+        promise.reject(error);
+      });
+    } else {
+      promise.reject(error);
+    }
+  });
+  req.on('success', (resp) => {
+    promise.resolve(resp.data);
+  });
+  req.send();
+  return promise;
+};
+
+// 5.4.2 アイテムを作成して保存する
+learnjs.saveAnswer = (problemId, answer) => {
+  return learnjs.identity.then((identity) => {
+    const db = new AWS.DynamoDB.DocumentClient();
+    const item = {
+      TableName: 'learnjs',
+      Item: {
+        userId: identity.id,
+        problemId: problemId / 1,
+        answer: answer,
+      }
+    };
+
+    return learnjs.sendDbRequest(db.put(item), () => {
+      return learnjs.saveAnswer(problemId, answer);
+    });
+  });
+};
+
+// 5.5 ドキュメントを取得する
+learnjs.fetchAnswer = (problemId) => {
+  return learnjs.identity.then((identity) => {
+    const db = new AWS.DynamoDB.DocumentClient();
+    const item = {
+      TableName: 'learnjs',
+      Key: {
+        userId: identity.id,
+        problemId: problemId / 1,
+      }
+    };
+
+    return learnjs.sendDbRequest(db.get(item), () => {
+      return learnjs.fetchAnswer(problemId);
+    });
+  });
+};
 
 $(() => {
   learnjs.appOnReady();
 });
 
+// Googleログイン時のコールバック
 function googleSignIn(user)
 {
-  console.log(learnjs);
   const token = user.getAuthResponse().id_token;
 
   AWS.config.update({
@@ -132,7 +198,7 @@ function googleSignIn(user)
     credentials: new AWS.CognitoIdentityCredentials({
       IdentityPoolId: learnjs.poolId,
       Logins: {
-        "accounts.google.com": token
+        'accounts.google.com': token
       }
     })
   });
@@ -156,3 +222,6 @@ function googleSignIn(user)
     });
   });
 }
+const auth2 = gapi.auth2.init();
+auth2.attachClickHandler($('.g-signin2')[0], {}, googleSignIn);
+

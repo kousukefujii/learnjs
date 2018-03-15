@@ -12,7 +12,9 @@
     "jQuery": true,
     "$": true,
     "_": true,
-    "Vue": true
+    "Vue": true,
+    "AWS": true,
+    "gapi": true
   },
   "rules": {
     "indent": [

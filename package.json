@@ -1,0 +1,11 @@
+{
+  "name": "learnjs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:kousukefujii/learnjs.git",
+  "author": "Kousuke Fujii <fujii@sharecoto.co.jp>",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^4.18.2"
+  }
+}

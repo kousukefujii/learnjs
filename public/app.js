@@ -184,6 +184,23 @@ learnjs.fetchAnswer = (problemId) => {
   });
 };
 
+// 5.6 データアクセスと検証
+learnjs.countAnswers = (problemId) => {
+  const requestCallback = () => {
+    const db = new AWS.DynamoDB.DocumentClient();
+    const params = {
+      TableName: 'learnjs',
+      Select: 'COUNT',
+      FilterExpression: 'problemId = :problemId',
+      ExpressionAttributeValues: {':problemId': problemId}
+    };
+    return learnjs.sendDbRequest(db.scan(params), () => {
+      return learnjs.countAnswers(problemId);
+    });
+  };
+  learnjs.identity.then(requestCallback);
+};
+
 $(() => {
   learnjs.appOnReady();
 });
